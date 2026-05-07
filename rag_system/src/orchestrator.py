@@ -12,11 +12,48 @@ from src.tools.db_tool import (
     execute_sql
 )
 
+#
+# Supported services
+#
+
+SERVICES = [
+    "PaymentGW",
+    "OrderSvc",
+    "AuthSvc",
+    "NotificationSvc",
+    "ReportingSvc",
+    "FraudDetector"
+]
+
+def detect_service(
+    query: str
+):
+
+    for service in SERVICES:
+
+        if service.lower() in query.lower():
+
+            return service
+
+    #
+    # Default fallback
+    #
+
+    return "PaymentGW"
+
 def run_orchestrator(
     query: str
 ):
 
     lower_query = query.lower()
+
+    #
+    # Detect target service
+    #
+
+    service = detect_service(
+        query
+    )
 
     results = {
         "kb_results": [],
@@ -54,30 +91,28 @@ def run_orchestrator(
             get_incidents()
         )
 
-        payment_incidents = [
+        filtered_incidents = [
 
             i for i in incidents
 
-            if i["service"]
-            == "PaymentGW"
+            if i["service"] == service
         ]
 
         results[
             "tool_outputs"
         ].append({
 
-            "tool": (
-                "incident_history"
-            ),
+            "tool":
+            "incident_history",
 
             "summary":
             (
-                "Historical incidents "
-                "for PaymentGW"
+                f"Historical incidents "
+                f"for {service}"
             ),
 
             "data":
-            payment_incidents
+            filtered_incidents
         })
 
     #
@@ -92,19 +127,20 @@ def run_orchestrator(
             "health",
             "status",
             "performance",
-            "p99"
+            "p99",
+            "sla"
         ]
     ):
 
         metrics = (
             get_service_metrics(
-                "PaymentGW"
+                service
             )
         )
 
         status = (
             get_service_status(
-                "PaymentGW"
+                service
             )
         )
 
@@ -117,8 +153,8 @@ def run_orchestrator(
 
             "summary":
             (
-                "Current performance "
-                "metrics"
+                f"Current metrics "
+                f"for {service}"
             ),
 
             "data":
@@ -134,8 +170,8 @@ def run_orchestrator(
 
             "summary":
             (
-                "Current service "
-                "health"
+                f"Current health "
+                f"for {service}"
             ),
 
             "data":
@@ -157,24 +193,26 @@ def run_orchestrator(
         ]
     ):
 
-        sql = """
+        sql = f"""
         SELECT
-            SUM(total_cost) AS total
+            service,
+            month,
+            total_cost
         FROM monthly_costs
-        WHERE service = 'PaymentGW'
-        AND month IN (
-            '2026-01',
-            '2026-02',
-            '2026-03'
-        )
+        WHERE service = '{service}'
+        ORDER BY month DESC
+        LIMIT 6
         """
 
         sql_results = (
             execute_sql(sql)
         )
 
-        total_cost = (
-            sql_results[0]["total"]
+        total_cost = sum(
+
+            row["total_cost"]
+
+            for row in sql_results
         )
 
         results[
@@ -186,14 +224,14 @@ def run_orchestrator(
 
             "summary":
             (
-                "Q1 2026 PaymentGW "
-                "infrastructure cost"
+                f"Infrastructure costs "
+                f"for {service}"
             ),
 
             "important_result":
             (
-                f"Q1 infrastructure "
-                f"cost = "
+                f"Total retrieved "
+                f"infrastructure cost = "
                 f"${total_cost:,.0f}"
             ),
 
