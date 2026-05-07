@@ -1,0 +1,107 @@
+#
+# Python
+#
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+#
+# Virtual environments
+#
+
+.venv/
+venv/
+env/
+
+#
+# Environment variables
+#
+
+.env
+.env.*
+
+#
+# Logs
+#
+
+logs/
+*.log
+
+#
+# AWS credentials
+#
+
+.aws/
+credentials
+config
+
+#
+# IDE / Editor
+#
+
+.vscode/
+.idea/
+
+#
+# OS files
+#
+
+.DS_Store
+Thumbs.db
+
+#
+# Local databases
+#
+
+*.sqlite
+*.sqlite3
+
+#
+# Optional local DB
+#
+
+geekbrain.db
+
+#
+# Temporary files
+#
+
+tmp/
+temp/
+*.tmp
+
+#
+# Jupyter
+#
+
+.ipynb_checkpoints/
+
+#
+# Nix
+#
+
+result
+.direnv/
+
+#
+# Secrets / Keys
+#
+
+*.pem
+*.key
+*.crt
+
+#
+# Testing cache
+#
+
+.pytest_cache/
+
+#
+# Coverage
+#
+
+.coverage
+htmlcov/

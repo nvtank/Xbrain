@@ -1,0 +1,42 @@
+
+[2026-05-07 10:58:48.755675]
+QUESTION: What is PaymentGW API rate limit?
+ANSWER: The PaymentGW API rate limit is **1,000 requests per minute per merchant API key** (source: 'api_reference_v2.md'). This is an increase from the previous version, v1, which had a rate limit of **500 requests per minute per API key** (source: 'api_reference_v1_archived.md').
+
+[2026-05-07 11:03:02.759306]
+QUESTION: What is PaymentGW API rate limit?
+ANSWER: The PaymentGW API rate limit is **1,000 requests per minute per merchant API key** as per the current API version v2.0, effective March 2025. This is an increase from the previous limit of **500 requests per minute** in version v1.0.
+
+[Source: api_reference_v2.md]
+
+[2026-05-07 11:03:07.883117]
+QUESTION: Why did PaymentGW reliability drop and how much infrastructure cost did it incur in Q1 2026?\
+ANSWER: PaymentGW reliability dropped in Q1 2026 due to several factors, including a significant P1 incident on March 5, 2026, where the circuit breaker became stuck in the open state following a cascade of upstream bank API timeouts. This incident resulted in an extended outage, affecting approximately 40% of payment transaction volume for 3 hours. The incident caused significant operational load in the following weeks due to retry storms and compensatory batch jobs.
+
+Additionally, the PaymentGW infrastructure cost incurred in Q1 2026 was **$16,500**. This cost was influenced by the March incident, which led to increased third-party API call volume as the service retried upstream bank requests during the outage window. The cost baseline is expected to normalize in April 2026, but a root cause analysis is required to address the underlying structural cost inefficiencies.
+
+[Source: q1_2026_review_notes.md]
+[Source: postmortem_INC005_paymentgw_mar.md]
+[Source: database_query]
+
+[2026-05-07 11:03:13.835052]
+QUESTION: Which service had highest cost?
+ANSWER: PaymentGW had the highest infrastructure cost in Q1 2026, with a total cost of **$16,500**. This is evidenced by the database query result which states "Q1 infrastructure cost = $16,500".
+
+[Source: database_query]
+
+[2026-05-07 11:03:18.479673]
+QUESTION: Why did its costs spike?
+ANSWER: The PaymentGW service's infrastructure costs spiked in Q1 2026 due to several factors, primarily influenced by a significant P1 incident on March 5, 2026. This incident involved the circuit breaker becoming stuck in the open state following a cascade of upstream bank API timeouts, leading to an extended outage that affected approximately 40% of payment transaction volume for 3 hours. The incident caused significant operational load in the following weeks due to retry storms and compensatory batch jobs.
+
+The infrastructure cost incurred in Q1 2026 was **$16,500**. This cost was influenced by the March incident, which led to increased third-party API call volume as the service retried upstream bank requests during the outage window. The cost baseline is expected to normalize in April 2026, but a root cause analysis is required to address the underlying structural cost inefficiencies.
+
+[Source: database_query]
+[Source: q1_2026_review_notes.md]
+[Source: postmortem_INC005_paymentgw_mar.md]
+
+[2026-05-07 11:03:22.273859]
+QUESTION: Which team owns it?
+ANSWER: The team that owns PaymentGW is **Team Platform**.
+
+[Source: team_platform.md]
