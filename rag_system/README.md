@@ -6,10 +6,18 @@
 
 ## Group Information
 
-- Group Number: ___
+- Group Number: 2
 - Members:
-  - ___
-  - ___
+  - Ngô Hũu Tài
+  - Mai Phước Khoa
+  - Nguyễn Tiến Hoàng Thịnh
+  - Đặng Thị Ngọc Thảo
+  - Nguyễn Phú Triệu
+  - Nguyễn Hưng Thịnh
+  - Huỳnh Bá Huân
+  - Nguyễn Văn Tuấn Anh
+  - Lê Hoàng Việt
+  - Hoàng Công Trí Dũng
 
 - LLM:
   - Claude Sonnet via AWS Bedrock
