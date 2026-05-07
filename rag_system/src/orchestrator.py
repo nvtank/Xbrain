@@ -189,9 +189,52 @@ def run_orchestrator(
             "cost",
             "revenue",
             "expense",
-            "q1"
+            "q1",
+            "q2",
+            "q3",
+            "q4",
+            "spend"
         ]
     ):
+
+        #
+        # Detect time filter
+        #
+
+        time_filter = ""
+
+        if "q1" in lower_query:
+
+            time_filter = """
+            AND month IN (
+                '2026-01',
+                '2026-02',
+                '2026-03'
+            )
+            """
+
+        elif "q2" in lower_query:
+
+            time_filter = """
+            AND month IN (
+                '2026-04',
+                '2026-05',
+                '2026-06'
+            )
+            """
+
+        elif (
+            "march" in lower_query
+            or "tháng 3" in lower_query
+        ):
+
+            time_filter = """
+            AND month = '2026-03'
+            """
+
+        #
+        # SQL
+        #
 
         sql = f"""
         SELECT
@@ -200,13 +243,17 @@ def run_orchestrator(
             total_cost
         FROM monthly_costs
         WHERE service = '{service}'
-        ORDER BY month DESC
-        LIMIT 6
+        {time_filter}
+        ORDER BY month ASC
         """
 
         sql_results = (
             execute_sql(sql)
         )
+
+        #
+        # Exact grounded total
+        #
 
         total_cost = sum(
 
@@ -214,6 +261,13 @@ def run_orchestrator(
 
             for row in sql_results
         )
+
+        months_covered = [
+
+            row["month"]
+
+            for row in sql_results
+        ]
 
         results[
             "tool_outputs"
@@ -230,13 +284,13 @@ def run_orchestrator(
 
             "important_result":
             (
-                f"Total retrieved "
-                f"infrastructure cost = "
-                f"${total_cost:,.0f}"
+                f"Total cost for "
+                f"{service} "
+                f"({', '.join(months_covered)}) "
+                f"= ${total_cost:,.0f}"
             ),
 
             "data":
             sql_results
         })
-
     return results
