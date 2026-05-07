@@ -11,32 +11,53 @@ bedrock_runtime = boto3.client(
     region_name=AWS_REGION
 )
 
-def ask_claude(prompt: str):
+def ask_claude(
+    prompt: str
+):
 
-    body = {
-        "messages": [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "text": prompt
-                    }
-                ]
+    try:
+
+        body = {
+
+            "messages": [
+                {
+                    "role": "user",
+
+                    "content": [
+                        {
+                            "text": prompt
+                        }
+                    ]
+                }
+            ],
+
+            "inferenceConfig": {
+
+                "maxTokens": 1024,
+
+                "temperature": 0
             }
-        ],
-        "inferenceConfig": {
-            "maxTokens": 1024,
-            "temperature": 0
         }
-    }
 
-    response = bedrock_runtime.invoke_model(
-        modelId=BEDROCK_MODEL_ID,
-        body=json.dumps(body)
-    )
+        response = (
+            bedrock_runtime.invoke_model(
 
-    response_body = json.loads(
-        response["body"].read()
-    )
+                modelId=BEDROCK_MODEL_ID,
 
-    return response_body["output"]["message"]["content"][0]["text"]
+                body=json.dumps(body)
+            )
+        )
+
+        response_body = json.loads(
+            response["body"].read()
+        )
+
+        return response_body[
+            "output"
+        ]["message"]["content"][0]["text"]
+
+    except Exception as e:
+
+        return (
+            f"[LLM ERROR] {str(e)}"
+        )
