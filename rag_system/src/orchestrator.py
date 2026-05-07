@@ -1,3 +1,5 @@
+import time
+
 from src.bedrock_kb import (
     retrieve_from_kb
 )
@@ -45,6 +47,8 @@ def run_orchestrator(
     query: str
 ):
 
+    start_time = time.time()
+
     lower_query = query.lower()
 
     #
@@ -60,6 +64,16 @@ def run_orchestrator(
         "tool_outputs": []
     }
 
+    trace = {
+        "query": query,
+        "retrieved_docs": [],
+        "tools_called": [],
+        "sql_queries": [],
+        "latency_ms": 0,
+    }
+
+    reasoning_steps = []
+
     #
     # KB Retrieval
     #
@@ -70,6 +84,17 @@ def run_orchestrator(
 
     results["kb_results"] = (
         kb_results
+    )
+
+    for doc in kb_results:
+
+        trace["retrieved_docs"].append({
+            "source": doc["source"],
+            "score": doc["score"],
+        })
+
+    reasoning_steps.append(
+        "Retrieved relevant KB documents"
     )
 
     #
@@ -113,6 +138,10 @@ def run_orchestrator(
 
             "data":
             filtered_incidents
+        })
+
+        trace["tools_called"].append({
+            "tool": "incident_history"
         })
 
     #
@@ -178,6 +207,18 @@ def run_orchestrator(
             status
         })
 
+        trace["tools_called"].append({
+            "tool": "service_metrics"
+        })
+
+        trace["tools_called"].append({
+            "tool": "service_status"
+        })
+
+        reasoning_steps.append(
+            "Fetched live monitoring metrics"
+        )
+
     #
     # SQL Tool
     #
@@ -201,11 +242,11 @@ def run_orchestrator(
         # Detect time filter
         #
 
-        time_filter = ""
+        quarter_filter = ""
 
         if "q1" in lower_query:
 
-            time_filter = """
+            quarter_filter = """
             AND month IN (
                 '2026-01',
                 '2026-02',
@@ -215,7 +256,7 @@ def run_orchestrator(
 
         elif "q2" in lower_query:
 
-            time_filter = """
+            quarter_filter = """
             AND month IN (
                 '2026-04',
                 '2026-05',
@@ -223,13 +264,25 @@ def run_orchestrator(
             )
             """
 
+        elif "march" in lower_query:
+
+            quarter_filter = """
+            AND month = '2026-03'
+            """
+
         elif (
-            "march" in lower_query
-            or "tháng 3" in lower_query
+            "highest cost" in lower_query
+            or "most expensive" in lower_query
+            or "cost spike" in lower_query
+            or "costs spike" in lower_query
         ):
 
-            time_filter = """
-            AND month = '2026-03'
+            quarter_filter = """
+            AND month IN (
+                '2026-01',
+                '2026-02',
+                '2026-03'
+            )
             """
 
         #
@@ -243,12 +296,22 @@ def run_orchestrator(
             total_cost
         FROM monthly_costs
         WHERE service = '{service}'
-        {time_filter}
+        {quarter_filter}
         ORDER BY month ASC
         """
 
         sql_results = (
             execute_sql(sql)
+        )
+
+        trace["tools_called"].append({
+            "tool": "database_query"
+        })
+
+        trace["sql_queries"].append(sql)
+
+        reasoning_steps.append(
+            "Queried structured cost data"
         )
 
         #
@@ -293,4 +356,11 @@ def run_orchestrator(
             "data":
             sql_results
         })
+
+    trace["latency_ms"] = int(
+        (time.time() - start_time) * 1000
+    )
+
+    results["trace"] = trace
+    results["reasoning_steps"] = reasoning_steps
     return results

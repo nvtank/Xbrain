@@ -18,25 +18,20 @@ def ask_claude(
     try:
 
         body = {
-
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 1024,
+            "temperature": 0,
             "messages": [
                 {
                     "role": "user",
-
                     "content": [
                         {
+                            "type": "text",
                             "text": prompt
                         }
                     ]
                 }
-            ],
-
-            "inferenceConfig": {
-
-                "maxTokens": 1024,
-
-                "temperature": 0
-            }
+            ]
         }
 
         response = (
@@ -52,9 +47,7 @@ def ask_claude(
             response["body"].read()
         )
 
-        return response_body[
-            "output"
-        ]["message"]["content"][0]["text"]
+        return response_body["content"][0]["text"]
 
     except Exception as e:
 
