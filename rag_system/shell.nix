@@ -15,9 +15,12 @@ mkShell {
     gcc
 
     stdenv.cc.cc.lib
+
+    zlib
   ];
 
   LD_LIBRARY_PATH = lib.makeLibraryPath [
     stdenv.cc.cc.lib
+    zlib
   ];
 }
